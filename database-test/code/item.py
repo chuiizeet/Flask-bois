@@ -38,6 +38,16 @@ class Item(Resource):
 		data = request.get_json()
 		item = {'name': name, 'price': data['price']}
 
+		try:
+			self.insert(item)
+		except:
+			return {'message': 'An error ocurred inserting the item.'}, 500
+		
+
+		return item, 201
+
+	@classmethod
+	def insert(cls. item):
 		connection = sqlite3.connect('data.db')
 		cursor = connection.cursor()
 
@@ -46,8 +56,6 @@ class Item(Resource):
 
 		connection.commit()
 		connection.close()
-
-		return item, 201
 
 	def delete(self, name):
 		connection = sqlite3.connect('data.db')
