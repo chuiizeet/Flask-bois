@@ -69,13 +69,26 @@ class Item(Resource):
 
 	def put(self, name):
 		data = parser.parse_args()
-		item = next(filter(lambda x: x['name'] == name, items), None)
+		item = self.find_by_name(name)
+
+		update_item = {'name': name, 'price': data['price']}
+
 		if item is None:
-			item = {'name': name, 'price': data['price']}
-			items.append(item)
+			self.insert(update_item)
 		else:
-			item.update(data)
-		return item
+			self.insert(update_item)
+		return update_item
+
+	@classmethod
+	def insert(cls, item):
+		connection = sqlite3.connect('data.db')
+		cursor = connection.cursor()
+
+		query = "UPDATE items SET price=? WHERE name=?"
+		cursor.execute(query, (item['price'], item['name']))
+
+		connection.commit()
+		connection.close()
 
 
 class ItemList(Resource):
