@@ -23,29 +23,36 @@ class Item(Resource):
 		if ItemModel.find_by_name(name):
 			return {'message': "An item with name '{}' already exists. ".format(name)}, 400
 
-		data = request.get_json()
+		data = Item.parser.parse_args()
 		item = ItemModel(name, data['price'])
 
 		try:
 			item.insert()
 		except:
 			return {'message': 'An error ocurred inserting the item.'}, 500
-		return item, 201
+		return item.json(), 201
 
 	def delete(self, name):
-		connection = sqlite3.connect('data.db')
-		cursor = connection.cursor()
 
-		query = "DELETE FROM items WHERE name=?"
-		cursor.execute(query, (name,))
+		if ItemModel.find_by_name(name):
+			connection = sqlite3.connect('data.db')
+			cursor = connection.cursor()
 
-		connection.commit()
-		connection.close()
+			query = "DELETE FROM items WHERE name=?"
+			cursor.execute(query, (name,))
+
+			connection.commit()
+			connection.close()
+
+			return {'message': 'The item has been deleted.'}
+
+		else:
+			return {'message': 'The item does exist.'}
 
 	def put(self, name):
-		data = parser.parse_args()
-		item = ItemModel.find_by_name(name)
+		data = Item.parser.parse_args()
 
+		item = ItemModel.find_by_name(name)
 		update_item = ItemModel(name, data['price'])
 
 		if item is None:
