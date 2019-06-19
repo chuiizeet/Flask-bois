@@ -11,7 +11,7 @@ class Item(Resource):
 		help="This field cannot be left blank!"
 	)
 
-	parser.add_argument('price',
+	parser.add_argument('store_id',
 		type=int,
 		required=True,
 		help="Every item needs a store id"
